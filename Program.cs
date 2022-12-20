@@ -368,13 +368,40 @@ static char pedirLetra() //Funció que permet demanar a l'usuari la lletra que e
     return input;
 }
 
-static void actualizarAciertos(char lletra, char paraula, ref char endevinar, ref int encerts) //Funcio que actualitza el contador d'encerts i actualitza la paraula 
-{                                                                                              //a encertar amb la lletra corresponent si es endevinada.
+static void Lletrarepetida(char abecedari, char lletraEscollida, int check, ref int start) //Funcio que indica si s'ha escrit una lletra repetida i t'ho diu. 
+{
+    if (abecedari == lletraEscollida)
+    {
+        if (check == 1)
+        {
+
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("\t    Lletra repetida, escull una alta");
+            Console.ResetColor();
+            Console.ReadKey();
+            start = 1;
+        }
+    }
+}
+
+static void actualizarAciertos(char lletra, char paraula, ref char endevinar, ref int encerts, int encertscheck,    //Funcio que actualitza el contador d'encerts i actualitza la paraula 
+                               ref int vides, int length, ref int count)                                            //a encertar amb la lletra corresponent si es endevinada, si no resta un intent per ronda.
+{
     if (paraula == lletra)
+                                                                                                                                                        
     {
         endevinar = paraula;
         encerts++;
     }
+
+    count++; //Conta la lletra que es del bucle
+
+    if ((count == (length-1)) && (encerts == encertscheck)) //Compara si el bucle es troba en la ultima lletra i si es el cas i no s'ha pogut trobar, resta una vida.
+    {
+        vides--;
+    }
+   
 }
 
 
@@ -415,34 +442,23 @@ while ((numeroVides >= 0)) //Bucle de joc que es mante mentres encara quedin int
 
     lletraEscollida = pedirLetra(); //El jugador pot escriure una lletra tal com s'ha creat en la funció.
 
-    for (int i = 0; i < 3; i++)     //Bucle el qual recorre les 27 lletres del abecedari i el seu respectiu checker per a saber si ja s'ha escrit i si es el cas, tornar a l'inici de la ronda sense perdre una vida.
+    for (int i = 0; i < 3; i++)     //Bucle el qual recorre les 27 lletres del abecedari i crida la funció per veure si la lletra esta repetida, si es el cas torna
     {
         for (int j = 0; j < 9; j++)
         {
-            if (abecedari[i, j] == lletraEscollida)
-            {
-                if (checker[i, j] == 1)
-                {
-
-                    Console.WriteLine();
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("\t    Lletra repetida, escull una alta");
-                    Console.ResetColor();
-                    Console.ReadKey();
-                    goto start;
-                }
-            }
-
+            int startcheck = 0;
+            Lletrarepetida(abecedari[i, j], lletraEscollida, checker[i, j], ref startcheck);
+            if (startcheck == 1) goto start;
         }
     }
 
+    
     int EncertsCheck = numeroEncerts; //Int que serveix per a guardar temporalment com a referencia el nombre d'encerts abans d'actualitzar-los.
-    for (int i = 0; i < paraulaAEncertar.Length; i++) //Busca si hi ha un nou encert, lletra a lletra tal com s'ha creat en la funció.
+    int checkcount = 0;
+    for (int i = 0; i < paraulaAEncertar.Length; i++) //Busca si hi ha un nou encert, lletra a lletra tal com s'ha creat en la funció, si no conta només un error.
     {
-        actualizarAciertos(lletraEscollida, paraulaAEncertar[i], ref paraulaACompletar[i], ref numeroEncerts);
+        actualizarAciertos(lletraEscollida, paraulaAEncertar[i], ref paraulaACompletar[i], ref numeroEncerts, EncertsCheck, ref numeroVides, paraulaAEncertar.Length, ref checkcount);
     }
-    if (numeroEncerts == EncertsCheck) numeroVides--; //Compara el numero d'encerts actualitzat amb el temporal abans de ser actualitzat per aixi evitar que es restin més d'una vida.
-
 }
 
 Console.WriteLine();
