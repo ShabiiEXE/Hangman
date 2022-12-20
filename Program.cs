@@ -9,14 +9,14 @@ int numeroVides = 7;  //Inicialitza un int el qual fem servir per a seguir el no
 int numeroEncerts = 0; //Inicialitza un int el qual fem servir per a seguir el nombre de lletres encertades.
 
 char[,] abecedari = new char[3, 9] { { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I' },  //Array amb les lletres.
-                                     { 'J', 'K', 'L', 'M', 'N', 'Ç', 'O', 'P', 'Q' },   
+                                     { 'J', 'K', 'L', 'M', 'N', 'Ç', 'O', 'P', 'Q' },
                                      { 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' } };
 
 int[,] checker = new int[3, 9] { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, //Array que serveix per a verificar quines lletres s'han escrit.
                                  { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
                                  { 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
 
-string[] paraules = new string[14] {"AUDIOVISUAL", "MULTIMEDIA", "IMATGE", "DIBUIX", "CAMERA" , "EDITOR", "DIRECTOR", "PRODUCTOR", "DIBUIXANT", "ANIMADOR", "LLUM", "OBJECTIU", "MEMORIA", "LLAPIS" }; //Array que permet escriure les possibles paraules.
+string[] paraules = new string[14] { "AUDIOVISUAL", "MULTIMEDIA", "IMATGE", "DIBUIX", "CAMERA", "EDITOR", "DIRECTOR", "PRODUCTOR", "DIBUIXANT", "ANIMADOR", "LLUM", "OBJECTIU", "MEMORIA", "LLAPIS" }; //Array que permet escriure les possibles paraules.
 int encertar = numgen.Next(0, 14); //Generador de nombres aleatoris.                                            
 string paraulaAEncertar = paraules[encertar]; //String que permet emmagatzemar la paraula possible escollida gracies als nombres aleatoris.
 
@@ -34,7 +34,7 @@ char lletraEscollida = ' '; //Inicialitza un char en blanc que s'utilitzara com 
 static void imprimirBienvenida(ref int dificultat) //Funcio que mostra el menu d'inici i la selecció de dificultat.
 {
     int rules = 0;
-    benvinguts:
+benvinguts:
     Console.Clear();
     Console.Title = "";
     Console.WriteLine();
@@ -77,7 +77,7 @@ static void imprimirBienvenida(ref int dificultat) //Funcio que mostra el menu d
     Console.Write("  ");
     string seleccioDificultat = Console.ReadLine();
 
-    switch(seleccioDificultat) //Switch on depenent de la selecció de dificultat el jugador te més o menys intents.
+    switch (seleccioDificultat) //Switch on depenent de la selecció de dificultat el jugador te més o menys intents.
     {
         case "1":
             dificultat = 7;
@@ -135,23 +135,39 @@ static void imprimirNumeroVides(ref int vides) //Funcio que mostra el nombre de 
     Console.WriteLine();
 }
 
-static void imprimirAbecedario(char abc, char select, ref int check) //Funcio que imprimeix per pantalla l'array d'Abecedari i la compara amb la de Check per a poder evitar la repetició 
-{                                                                    //de lletres i poder indicar amb color les ja utilitzades.
-    if (select == abc)
+static void imprimirAbecedario(char[,] abc, char select, ref int[,] check) //Funcio que imprimeix per pantalla l'array d'Abecedari i la compara amb la de Check per a poder evitar la repetició 
+{                                                                          //de lletres i poder indicar amb color les ja utilitzades.
+    for (int i = 0; i < 3; i++)                                            //Es fa un bucle dins un altre per anar mostrant les lletres del abecedari en la pantalla tal com hem creat en la funció.
     {
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        check = 1;
+        Console.Write("\t\t  ");
+        for (int j = 0; j < 9; j++)
+        {
+            if (select == abc[i, j])
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                check[i, j] = 1;
+            }
+            if (check[i, j] == 1) Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write(abc[i, j] + " ");
+            Console.ResetColor();
+        }
+        Console.WriteLine();
     }
-    if (check == 1) Console.ForegroundColor = ConsoleColor.Yellow;
-    Console.Write(abc + " ");
-    Console.ResetColor();
+
+    Console.WriteLine();
+    Console.WriteLine();
 }
 
-static void imprimirPalabra(char lletra, char paraula, ref char endevinar) //Funció que mostra la paraula a endevinar, on les lletres no trobades son '_', i la va actualitzant amb les trobades.
+static void imprimirPalabra(char lletra, string paraula, ref char[] endevinar) //Funció que mostra la paraula a endevinar, on les lletres no trobades son '_', i la va actualitzant amb les trobades.
 {
-    if (endevinar != '_') Console.ForegroundColor = ConsoleColor.Yellow;
-    Console.Write(endevinar + " ");
-    Console.ResetColor();
+    Console.Write("\t\t  ");
+    for (int i = 0; i < paraula.Length; i++) //Es fa un bucle que mostra les lletres en blanc i les que han estat ja endevinades.
+    {
+        if (endevinar[i] != '_') Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write(endevinar[i] + " ");
+        Console.ResetColor();
+    }
+    Console.WriteLine();
 }
 
 static void imprimirDibujo(int vides) //Funcio que mostra les diferents possibilitats de dibuix de penjat segons el nombre restant d'intents.,
@@ -359,49 +375,53 @@ static void imprimirDibujo(int vides) //Funcio que mostra les diferents possibil
     }
 }
 
-static char pedirLetra() //Funció que permet demanar a l'usuari la lletra que es vol escollir i ho retorna al codi principal
+static char pedirLetra(char[,] abecedari, char lletraEscollida, int[,] check) //Funció que permet demanar a l'usuari la lletra que es vol escollir i ho retorna al codi principal
 {
     Console.WriteLine("*********************************************************");
     Console.Write("\t     Tecleja una lletra o vocal: ");
     char input = Convert.ToChar(Console.ReadLine());
 
+    for (int i = 0; i < 3; i++)     //Bucle el qual recorre les 27 lletres del abecedari i crida la funció per veure si la lletra esta repetida, si es el cas torna
+    {
+        for (int j = 0; j < 9; j++)
+        {
+            if ((abecedari[i, j] == lletraEscollida) && (check[i, j] == 1))
+            {
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\t    Lletra repetida, escull una alta");
+                Console.ResetColor();
+                Console.ReadKey();
+                input = '1';
+            }
+        }
+    }
+
     return input;
 }
 
-static void Lletrarepetida(char abecedari, char lletraEscollida, int check, ref int start) //Funcio que indica si s'ha escrit una lletra repetida i t'ho diu. 
-{
-    if (abecedari == lletraEscollida)
-    {
-        if (check == 1)
-        {
 
-            Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("\t    Lletra repetida, escull una alta");
-            Console.ResetColor();
-            Console.ReadKey();
-            start = 1;
+static void actualizarAciertos(char lletra, string paraula, ref char[] endevinar, ref int encerts, ref int vides, int length)    //Funcio que actualitza el contador d'encerts i actualitza la paraula 
+                                                                                                                                 //a encertar amb la lletra corresponent si es endevinada, si no resta un intent per ronda.
+{
+    int checkcount = 0; //Int que serveix per a guardar temporalment com a referencia el nombre de cada
+    int EncertsCheck = encerts; //Int que serveix per a guardar temporalment com a referencia el nombre d'encerts abans d'actualitzar-los.
+
+    for (int i = 0; i < paraula.Length; i++) //Busca si hi ha un nou encert, lletra a lletra tal com s'ha creat en la funció, si no conta només un error.
+    {
+        if (paraula[i] == lletra)
+        {
+            endevinar[i] = paraula[i];
+            encerts++;
+        }
+
+        checkcount++; //Conta la lletra que es del bucle
+
+        if ((checkcount == (length)) && (encerts == EncertsCheck)) //Compara si el bucle es troba en la ultima lletra i si es el cas i no s'ha pogut trobar, resta una vida.
+        {
+            vides--;
         }
     }
-}
-
-static void actualizarAciertos(char lletra, char paraula, ref char endevinar, ref int encerts, int encertscheck,    //Funcio que actualitza el contador d'encerts i actualitza la paraula 
-                               ref int vides, int length, ref int count)                                            //a encertar amb la lletra corresponent si es endevinada, si no resta un intent per ronda.
-{
-    if (paraula == lletra)
-                                                                                                                                                        
-    {
-        endevinar = paraula;
-        encerts++;
-    }
-
-    count++; //Conta la lletra que es del bucle
-
-    if ((count == (length-1)) && (encerts == encertscheck)) //Compara si el bucle es troba en la ultima lletra i si es el cas i no s'ha pogut trobar, resta una vida.
-    {
-        vides--;
-    }
-   
 }
 
 
@@ -410,56 +430,30 @@ static void actualizarAciertos(char lletra, char paraula, ref char endevinar, re
 ///////////////////////////////////////////////////////////////////////////
 
 imprimirBienvenida(ref numeroVides); //Apareix en pantalla el menu d'inici creat en la funció.
+
 while ((numeroVides >= 0)) //Bucle de joc que es mante mentres encara quedin intents.
 {
-    start: //Punt de referencia creat en cas de que es seleccioni una lletra ja dita.
+start: //Punt de referencia creat en cas de que es seleccioni una lletra ja dita.
     Console.Clear();
+
     imprimirNumeroVides(ref numeroVides);  //Apareix en pantalla el contador d'intents restants creat en la funció.
-    for (int i = 0; i < 3; i++) //Es fa un bucle dins un altre per anar mostrant les lletres del abecedari en la pantalla tal com hem creat en la funció.
-    {
-        Console.Write("\t\t  ");
-        for (int j = 0; j < 9; j++)
-        {
-            imprimirAbecedario(abecedari[i, j], lletraEscollida, ref checker[i, j]);
-        }
-        Console.WriteLine();
-    }
-
-    Console.WriteLine();
-    Console.WriteLine();
-    Console.Write("\t\t  ");
-    for (int i = 0; i < paraulaAEncertar.Length; i++) //Es fa un bucle que mostra les lletres en blanc i les que han estat ja endevinades.
-    { 
-        imprimirPalabra(lletraEscollida, paraulaAEncertar[i], ref paraulaACompletar[i]);
-
-    }
-    Console.WriteLine();
-
+    imprimirAbecedario(abecedari, lletraEscollida, ref checker); //Mostra les lletres del abecedari en la pantalla tal com hem creat en la funció.
+    imprimirPalabra(lletraEscollida, paraulaAEncertar, ref paraulaACompletar);
     imprimirDibujo(numeroVides); //Mostra el dibuix del penjat segons el nombre d'intents que li queden al jugador creat en la funció.
 
     if (numeroEncerts == paraulaAEncertar.Length) break; //Si el nombre d'encerts ja es igual al nombre de lletres es surt del WHILE.
     if (numeroVides == 0) break; //Si el nombre de vides es 0 es surt del WHILE.
 
-    lletraEscollida = pedirLetra(); //El jugador pot escriure una lletra tal com s'ha creat en la funció.
+    lletraEscollida = pedirLetra(abecedari, lletraEscollida, checker); //El jugador pot escriure una lletra tal com s'ha creat en la funció i revisa si ja ha estat dita.
+    if (lletraEscollida == '1') goto start;
 
-    for (int i = 0; i < 3; i++)     //Bucle el qual recorre les 27 lletres del abecedari i crida la funció per veure si la lletra esta repetida, si es el cas torna
-    {
-        for (int j = 0; j < 9; j++)
-        {
-            int startcheck = 0;
-            Lletrarepetida(abecedari[i, j], lletraEscollida, checker[i, j], ref startcheck);
-            if (startcheck == 1) goto start;
-        }
-    }
-
+    //Lletrarepetida(abecedari, lletraEscollida, checker, ref startcheck);
     
-    int EncertsCheck = numeroEncerts; //Int que serveix per a guardar temporalment com a referencia el nombre d'encerts abans d'actualitzar-los.
-    int checkcount = 0;
-    for (int i = 0; i < paraulaAEncertar.Length; i++) //Busca si hi ha un nou encert, lletra a lletra tal com s'ha creat en la funció, si no conta només un error.
-    {
-        actualizarAciertos(lletraEscollida, paraulaAEncertar[i], ref paraulaACompletar[i], ref numeroEncerts, EncertsCheck, ref numeroVides, paraulaAEncertar.Length, ref checkcount);
-    }
+
+    actualizarAciertos(lletraEscollida, paraulaAEncertar, ref paraulaACompletar, ref numeroEncerts, ref numeroVides, paraulaAEncertar.Length); //Crida a la funció que actualitza les dades del joc al final de la ronda
 }
+
+
 
 Console.WriteLine();
 Console.WriteLine();
@@ -500,5 +494,9 @@ switch (data)
         break;
 
     default: //Si no es diu ni si ni no, es torna a fer la pregunta i es torna al punt de referencia anterior.
+        Console.WriteLine();
         goto Jugar;
 }
+
+
+///////////////////////////////////////////////////////////////////////////
